@@ -66,6 +66,30 @@ require.config({
 Otherwise the template extension defaults to '.hbs'.
 
 
+## Template dependencies
+
+This plugin allows the developer to specify some AMD modules as dependencies of
+a template. This is extremely useful to load Handlebars helpers and partials,
+and you can use it with a [CSS plugin][] to load the template's CSS.
+
+In your template file, use this syntax to list dependencies:
+
+```
+{{!require my-helper-module, css!some-css, the-partials-i-use}}
+```
+
+requirejs-hbs will automatically require those for you, in the client while
+developing or at build time. Comas are optional and you can use multiple lines:
+
+```
+{{!require
+    my-helper-module
+    css!some-css
+    the-partials-i-use
+}}
+```
+
+
 ## Build
 
 Two use cases here: either you want to keep the full Handlebars library in your
@@ -111,3 +135,4 @@ $ firefox http://localhost:8000/index-build.html
 [SlexAxton/require-handlebars-plugin]: https://github.com/SlexAxton/require-handlebars-plugin
 [text]: https://github.com/requirejs/text
 [map]: http://requirejs.org/docs/api.html#config-map
+[CSS plugin]: https://github.com/guybedford/require-css
