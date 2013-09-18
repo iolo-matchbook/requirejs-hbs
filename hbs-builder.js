@@ -14,20 +14,37 @@ define(["handlebars-compiler"], function (Handlebars) {
       // Sorry, no Rhino support.
       var fs = nodeRequire("fs");
       var fsPath = config.dirBaseUrl + "/" + name + ext;
-      buildMap[name] = fs.readFileSync(fsPath).toString();
-      onload();
+      var content = fs.readFileSync(fsPath).toString();
+      var dependencies = this.extractDependencies(content);
+      buildMap[name] = {
+        content: content,
+        dependencies: dependencies
+      };
+      parentRequire(dependencies, function () { onload(); });
+
     },
 
     // http://requirejs.org/docs/plugins.html#apiwrite
     write: function (pluginName, name, write) {
-      var compiled = Handlebars.precompile(buildMap[name]);
+      var compiled = Handlebars.precompile(buildMap[name].content);
+      var dependencies = JSON.stringify(["handlebars"].concat(buildMap[name].dependencies));
       // Write out precompiled version of the template function as AMD
       // definition.
       write(
-        "define('hbs!" + name + "', ['handlebars'], function(Handlebars){ \n" +
+        "define('hbs!" + name + "', " + dependencies + ", function(Handlebars){ \n" +
           "return Handlebars.template(" + compiled.toString() + ");\n" +
         "});\n"
       );
+    },
+
+    extractDependencies: function (content) {
+      var dependencies = [];
+      content.replace(/\{\{!require\s+([\S\s]+?)\}\}/g, function (_, list) {
+        list.replace(/\s*([^\s,]+)\s*,?/g, function (_, dependency) {
+          dependencies.push(dependency);
+        });
+      });
+      return dependencies;
     }
 
   };
