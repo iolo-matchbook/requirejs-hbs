@@ -13,7 +13,7 @@ define(["handlebars-compiler"], function (Handlebars) {
       // Use node.js file system module to load the template.
       // Sorry, no Rhino support.
       var fs = nodeRequire("fs");
-      var fsPath = config.dirBaseUrl + "/" + name + ext;
+      var fsPath = parentRequire.toUrl(name + ext);
       var content = fs.readFileSync(fsPath).toString();
       var dependencies = this.extractDependencies(content);
       buildMap[name] = {
